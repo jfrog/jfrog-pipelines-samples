@@ -1,8 +1,8 @@
-# Hello World Introductory Pipeline Template
-This template will showcase a few of the basic features available in JFrog Pipelines. This is the source for the `HelloWorld` global template which you can read about [here](https://www.jfrog.com/confluence/display/JFROG/Global+Templates)
+# Hello World Introductory Pipeline
+This pipeline will showcase a few of the basic features available in JFrog Pipelines. This pipeline is based on the `HelloWorld` global template which you can read about [here](https://www.jfrog.com/confluence/display/JFROG/Global+Templates)
 
 ## How to use
-A template named `HelloWorld` comes pre-installed on all JFrog Pipelines installations. You can create a pipeline from this template by following the documentation [here](https://www.jfrog.com/confluence/display/JFROG/Global+Templates#GlobalTemplates-UsingGlobalTemplatestoCreateaPipelineSource)
+Since this is a full pipelines.yml, you can add it to your environment by following the instructions [here](https://www.jfrog.com/confluence/display/JFROG/Managing+Pipeline+Sources#ManagingPipelineSources-AddingaPipelineSource) to add from YAML.
 
 ## Features Showcased
 - parallel steps
