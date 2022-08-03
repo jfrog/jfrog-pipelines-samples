@@ -39,11 +39,11 @@ This step is the starting point of the pipeline. From here, it splits into two p
 This step shows how you can define an environmentVariables section in your step configuraiton such that the user gets to choose from a predetermined list of values, or enter their own value. [See documentation for more a more detailed description](https://www.jfrog.com/confluence/display/JFROG/Pipelines+Environment+Variables#PipelinesEnvironmentVariables-EnvironmentVariablesConfiguration)
 
 
-### run_variable
+### add_run_variable
 This step shows how you can add a "run variable" that can be referenced in later steps. Adding variable with `add_run_variables` command will ensure that all downstream steps can access that same variable. [See documentation on utilizing state](https://www.jfrog.com/confluence/display/JFROG/Creating+Stateful+Pipelines#CreatingStatefulPipelines-runStateRunState)
 
-### verify_details
+### write_to_resource
 This step shows how to access the run variable that was set in the previous step. It also shows how to write key/value pairs to an outputResource. [See documentation on writing to resources](https://www.jfrog.com/confluence/display/JFROG/Pipelines+Resources#PipelinesResources-UsingStatefulResources)
 
-### final
+### read_from_resource
 This step shows how to access the information in an inputResource. Resources expose their information via environment variables. Note that this step is not directly connected to any other step. Instead, it is connect via the input resource to another step which has the same resource as an outputResource. [See documentation on using resource variables](https://www.jfrog.com/confluence/display/JFROG/Pipelines+Resources#PipelinesResources-UsingResourcesValuesinEnvironmentVariables)
