@@ -1,0 +1,21 @@
+# This string will prefix the "HelloWorld" resource and pipeline.
+# it will allow you to add the pipeline multiple times with unique names
+namePrefix: intro
+
+##
+# The following section is optional. If you have a repository you'd like to
+# experiment with, you can add it here.
+##
+repo:
+  # Before creating your Pipeline Source, create an integration for one of the
+  # source control providers and put the integration name here.
+  integrationName: myGitIntegration
+
+  # this is the full repository path. Usually org/repo or user/project
+  # depending on which source control you use.
+  path: "myorgname/myreponame"
+
+  # branchPattern is a regex, so you could listen to all
+  # features, for example, with "^feature.*"
+  branchPattern: "^main$"
+
