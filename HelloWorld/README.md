@@ -13,7 +13,7 @@ Since this is a full pipelines.yml, you can add it to your environment by follow
 - steps connected through a resource
 
 ## Resources
-Two resources are defined in this pipeline. One is optional and only present if certain information is provided in the values.yml.  The other is always present and is used to showcase the behavior of inputResources and outputResource in the step configurations. [See documentation on defining resources](https://www.jfrog.com/confluence/display/JFROG/Pipelines+Resources)
+This pipeline utilizes a [PropertyBag](https://www.jfrog.com/confluence/display/JFROG/PropertyBag) resource, which is designed to contain a collection of key/value pairs that are fully customizable in the yaml, or can be configured at runtime. [See documentation on defining resources](https://www.jfrog.com/confluence/display/JFROG/Pipelines+Resources)
 
 ```
 resources:
