@@ -1,0 +1,39 @@
+## This string will prefix the resources and pipeline.
+## It will allow you to add a pipeline source from this
+## template multiple times with unique names.
+namePrefix: sample
+
+## The name of your Artifactory integration
+artIntegration: myArtIntegrationName
+
+##### Artifactory Build Info
+## set this to `true` to publish a build
+publishBuild: true
+## set this to `true` to scan the published build
+#scanBuild: true
+## When publishBuild is enabled, a FileSpec resource will be created
+## that points to the published build. Here you can specify a pattern
+## to further narrow down the Artifacts that are referenced by the spec.
+#buildSpecPattern: "*"
+
+##### Repository Details
+repo:
+  path: org/repo
+  gitIntegration: myGitIntegration
+  branchPattern: "^main$"
+
+##### Maven configuration
+mavenConfig:
+  ## Here you specify the command to execute
+  ## it is executed as `mvn {{ command }}`
+  command: clean install
+  sourceLocation: "MavenCI/sample-project"
+  ## These repos must first be created in Artifactory.
+  ## resolver is used to resolve dependencies. It is recommended to
+  ## use a remote repository so that any external dependencies will be cached
+  ## in your local Artifactory instance. Deployer is where your Artifacts
+  ## will be uploaded.
+  resolverSnapshotRepo: maven-snapshot-remote
+  resolverReleaseRepo: maven-release-remote
+  deployerSnapshotRepo: maven-snapshot-local
+  deployerReleaseRepo: maven-release-local
