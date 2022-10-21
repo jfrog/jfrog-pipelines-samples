@@ -1,3 +1,6 @@
+template: true
+valuesFilePath: ./values.yml
+
 resources:
   - name: sample_bag
     type: PropertyBag
