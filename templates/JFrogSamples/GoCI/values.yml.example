@@ -1,0 +1,55 @@
+## This string will prefix the resources and pipeline, allowing you to add
+## the pipeline source multiple times with unique names.
+namePrefix: sample
+
+## The name of your Artifactory integration
+artIntegration: myArtIntegrationName
+
+##### Artifactory Build Info
+## set this to `true` to publish builds
+#publishBuild: true
+## set this to `true` to scan the published build(s)
+#scanBuild: true
+## When publishBuild is enabled, a FileSpec resource will be created
+## that points to each published build. Here you can specify a pattern
+## to further narrow down the Artifacts that are referenced by the specs.
+## The binaryBuildSpecPattern filters the files included for the FileSpec
+## output by the GoPublishBinary step.
+#binaryBuildSpecPattern: "*"
+## The moduleBuildSpecPattern filters the files included for the FileSpec
+## output by the GoPublishModule step.
+#moduleBuildSpecPattern: "*"
+
+##### Repository Details
+repo:
+  path: org/repo
+  gitIntegration: myGitIntegration
+  branchPattern: "^main$"
+
+goConfig:
+  ### Settings used for both modules and binaries:
+  ## The location of the source code in your repository.
+  ## Commands will be executed here.
+  sourceLocation: "."
+  ## This repository, if specified, must first be created in Artifactory.
+  ## The resolver is used to resolve dependencies. It is recommended to
+  ## use a remote repository so that any external dependencies will be cached
+  ## in your local Artifactory instance.
+  resolverRepo: go-remote
+
+  ### Settings used only for GoBuild and GoPublishBinary:
+  ## Required to use these steps, the repository to which to upload the binary.
+  ## The repository must first be created in Artifactory.
+  binaryTargetRepository: go-local
+  ## Here you specify any additional arguments to the command to execute
+  ## it is executed as `go {{ command }}`
+  command: "build -o $outputLocation/$outputFile"
+  outputLocation: "GoBuild"
+  outputFile: "myOutputFile"
+
+  ### Settings used only for GoPublishModule:
+  ## Required to use this step, the repository to which to upload the module.
+  ## The repository must first be created in Artifactory.
+  moduleTargetRepository: go-local
+  ## The version specified in the go-publish command.
+  version: v1.0.${run_number}

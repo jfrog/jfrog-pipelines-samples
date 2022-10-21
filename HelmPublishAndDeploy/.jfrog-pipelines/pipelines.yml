@@ -1,0 +1,140 @@
+resources:
+  - name: {{ .Values.GitRepo.name | default "GitRepoRes" }}
+    type: GitRepo
+    configuration:
+      gitProvider: {{ .Values.GitRepo.gitProvider }}
+      path: {{ .Values.GitRepo.path }}
+      {{- if or (.Values.GitRepo.branches.include) (.Values.GitRepo.branches.exclude) }}
+      branches:
+        {{- if .Values.GitRepo.branches.include }}
+        include: {{ .Values.GitRepo.branches.include }}
+        {{- end }}
+        {{- if .Values.GitRepo.branches.exclude }}
+        exclude: {{ .Values.GitRepo.branches.exclude }}
+        {{- end }}
+      {{- end }}
+      {{- if or (.Values.GitRepo.files.include) (.Values.GitRepo.files.exclude) }}
+      files:
+        {{- if .Values.GitRepo.files.include }}
+          include: {{ .Values.GitRepo.files.include }}
+        {{- end }}
+        {{- if .Values.GitRepo.files.exclude }}
+          exclude: {{ .Values.GitRepo.files.exclude }}
+        {{- end }}
+      {{- end }}
+
+  - name: {{ .Values.BuildInfo.name | default "BuildInfoRes" }}
+    type: BuildInfo
+    configuration:
+      sourceArtifactory: {{ .Values.artifactoryIntegration }}
+
+  {{- if .Values.BuildInfoPromoted }}
+  - name: {{ .Values.BuildInfoPromoted.name | default "BuildInfoPromotedRes" }}
+    type: BuildInfo
+    configuration:
+      sourceArtifactory: {{ .Values.artifactoryIntegration }}
+  {{- end }}
+
+  - name: {{ .Values.HelmChart.name | default "HelmChartRes" }}
+    type: HelmChart
+    configuration:
+      sourceArtifactory: {{ .Values.artifactoryIntegration }}
+      repository: {{ .Values.HelmChart.repository }}
+      chart:  {{ .Values.HelmChart.chartName }}
+      version: {{ .Values.HelmChart.chartVersion }}
+
+pipelines:
+  - name: {{ .Values.Pipeline.name | default "HelmDeployPipeline" }}
+    configuration:
+      jfrogCliVersion: 2
+      {{- if or (.Values.BuildInfo.buildName) (.Values.BuildInfo.buildNumber) }}
+      environmentVariables:
+        readOnly:
+          {{- if .Values.BuildInfo.buildName }}
+          JFROG_CLI_BUILD_NAME: {{ .Values.BuildInfo.buildName }}
+          {{- end }}
+          {{- if .Values.BuildInfo.buildNumber }}
+          JFROG_CLI_BUILD_NUMBER: {{ .Values.BuildInfo.buildNumber }}
+          {{- end }}
+      {{- end }}
+    steps:
+      - name: {{ .Values.HelmPublish.name | default "HelmPublish" }}
+        type: HelmPublish
+        configuration:
+          helmVersion: {{ .Values.HelmChart.helmVersion | default 3 }}
+          autoPublishBuildInfo: true
+          chartPath: {{ .Values.HelmPublish.chartPath }}
+          {{- if .Values.HelmPublish.flags }}
+          flags:  {{ .Values.HelmPublish.flags }}
+          {{- end }}
+          {{- if .Values.HelmPublish.valueFilePaths }}
+          valueFilePaths:
+            {{- range $.Values.HelmPublish.valueFilePaths }}
+            - {{ . }}
+            {{- end }}
+          {{- end }}
+          lint: {{ .Values.HelmPublish.lint | default false }}
+          {{- if .Values.HelmPublish.lintFlags }}
+          lintFlags: {{ .Values.HelmPublish.lintFlags }}
+          {{- end }}
+          inputResources:
+            - name: {{ .Values.GitRepo.name | default "GitRepoRes" }}
+          outputResources:
+            - name: {{ .Values.BuildInfo.name | default "BuildInfoRes" }}
+            - name: {{ .Values.HelmChart.name | default "HelmChartRes" }}
+
+      {{- if and (.Values.PromoteBuild) (.Values.BuildInfoPromoted) }}
+      - name: {{ .Values.PromoteBuild.name | default "PromoteBuild" }}
+        type: PromoteBuild
+        configuration:
+          copy: {{ .Values.PromoteBuild.copy | default false }}
+          targetRepository: {{ .Values.PromoteBuild.targetRepository }}
+          inputResources:
+            - name: {{ .Values.BuildInfo.name | default "BuildInfoRes" }}
+              trigger: {{ .Values.PromoteBuild.autoPromotion | default true }}
+          outputResources:
+            - name: {{ .Values.BuildInfoPromoted.name | default "BuildInfoPromotedRes" }}
+      {{- end }}
+
+      - name: {{ .Values.HelmDeploy.name | default "HelmDeploy" }}
+        type: HelmDeploy
+        configuration:
+          {{- if .Values.HelmChart.namespace }}
+          environmentVariables:
+            HELM_NAMESPACE: {{ .Values.HelmChart.namespace }}
+          {{- end }}
+          integrations:
+            - name: {{ .Values.kubernetesIntegration }}
+          inputResources:
+            {{- if and (.Values.PromoteBuild) (.Values.BuildInfoPromoted) }}
+            - name: {{ .Values.BuildInfoPromoted.name | default "BuildInfoPromotedRes" }}
+            {{- else }}
+            - name: {{ .Values.BuildInfo.name | default "BuildInfoRes" }}
+            {{- end }}
+          chartPath: {{ .Values.HelmDeploy.chartPath }}
+          chartName: {{ .Values.HelmChart.chartName }}
+          chartVersion: {{ .Values.HelmChart.chartVersion }}
+          helmVersion: {{ .Values.HelmChart.helmVersion | default 3 }}
+          {{- if .Values.HelmDeploy.releaseName }}
+          releaseName: {{ .Values.HelmDeploy.releaseName }}
+          {{- end }}
+          {{- if .Values.HelmChart.namespace }}
+          namespace:  {{ .Values.HelmChart.namespace }}
+          {{- end }}
+          {{- if .Values.HelmDeploy.flags }}
+          flags:  {{ .Values.HelmDeploy.flags }}
+          {{- end }}
+          {{- if .Values.HelmDeploy.valueFilePaths }}
+          valueFilePaths:
+            {{- range $.Values.HelmDeploy.valueFilePaths }}
+            - {{ . }}
+            {{- end }}
+          {{- end }}
+          lint: {{ .Values.HelmDeploy.lint | default false }}
+          {{- if .Values.HelmDeploy.lintFlags }}
+          lintFlags: {{ .Values.HelmDeploy.lintFlags }}
+          {{- end }}
+          test: {{ .Values.HelmDeploy.test | default false }}
+          {{- if .Values.HelmDeploy.testFlags }}
+          testFlags: {{ .Values.HelmDeploy.testFlags }}
+          {{- end }}

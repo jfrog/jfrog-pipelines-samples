@@ -1,0 +1,21 @@
+templateRepository:
+  # scm integration name
+  gitProvider: myGitIntegration
+  # repository path where your templates are present
+  path: someOrg/someRepo
+  # branch name where your templates are present in the repository (optional)
+  branch: master
+  # template folder location, where your templateDefinition.yml file is present
+  templateFolder: templates/templateName
+ 
+publishTemplate:
+  # Template namespace
+  namespace: jfrog_name_space
+  # Template name
+  name: myPipelineTemplate
+  # Template version
+  version: 0.0.1
+  # name of the pipeline (optional)
+  pipelineName: PublishTemplate
+  # artifactory integration name
+  artifactoryIntegration: myArtifactoryIntegration

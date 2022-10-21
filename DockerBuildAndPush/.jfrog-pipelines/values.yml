@@ -1,0 +1,30 @@
+Pipeline:
+  name: foo
+
+GitRepo:
+  name: sampleRepo
+  gitProvider: github
+  path: jfrog/jfrog-pipelines-samples
+  branches:
+    include: {{gitBranch}}
+
+artifactoryIntegration: art
+
+Image:
+  name: sampleImage
+  sourceRepository: foo
+  autoPull: false
+
+DockerBuild:
+  name: sampleBuild
+  dockerImageName: jfrog/testimage
+  dockerFileName: Dockerfile
+  dockerFileLocation: '.'
+  dockerImageTag: ${run_number}
+
+DockerPush:
+  name: samplePush
+
+BuildInfo:
+  autoPublishBuildInfo: true
+  name: sampleBuildInfo
