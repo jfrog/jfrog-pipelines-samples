@@ -1,0 +1,34 @@
+pipelines:
+  - name: top_pipeline
+    steps:
+      - name: scan_controller
+        type: TriggerPipeline
+        configuration:
+          pipelineName: scanner_pipeline
+          stepName: scan_it
+          integrations:
+            - name: tokenIntegration
+          environmentVariables:
+            scan_target:
+              default: "hello-world"
+              allowCustom: true
+              values:
+                - "vault"
+                - "redis"
+                - "postgresql"
+                - "hello-world"
+        execution:
+          onStart:
+            - set_trigger_payload pipelineVariables "scan_target=${scan_target}"
+            - set_trigger_payload stepVariables "notify=email" "uploadReport=true"
+          onComplete:
+            - echo "Final status is $nested_run_status"
+ 
+  - name: scanner_pipeline
+    steps:
+      - name: scan_it
+        type: Bash
+        execution:
+          onExecute:
+            - echo "Image to scan is $scan_target."
+            - echo "Triggered by parent step at $parent_step_url"
