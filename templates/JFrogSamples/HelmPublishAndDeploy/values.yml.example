@@ -1,0 +1,50 @@
+artifactoryIntegration: art
+kubernetesIntegration: k8s
+
+GitRepo:
+  name: fooGitRepo
+  gitProvider: github
+  path: jfrog/jfrog-pipelines-simple-example
+  branches:
+    exclude: master
+    include: {{gitBranch}}
+  files:
+    include: myCharts.*
+
+BuildInfo:
+  name: fooBuildInfo
+  buildName: foo
+  buildNumber: ${run_number}
+
+BuildInfoPromoted:
+  name: fooBuildInfoPromoted
+
+HelmChart:
+  name: fooHelmChart
+  chartName: foo
+  chartVersion: 1.0.0
+  helmVersion: 3
+  repository: foo
+
+Pipeline:
+  name: fooHelmDeploy
+
+HelmPublish:
+  name: HelmPublish
+  chartPath: '.'
+
+PromoteBuild:
+  name: fooPromoteBuild
+  targetRepository: fooPromote
+  autoPromotion: true
+
+HelmDeploy:
+  name: fooDeploy
+  releaseName: foo
+  chartPath: '.'
+  flags: '--wait --timeout 900s'
+  lint: true
+  lintFlags: '--strict'
+  valueFilePaths:
+    - values.yaml
+  test: true

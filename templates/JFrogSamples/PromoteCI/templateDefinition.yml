@@ -1,0 +1,40 @@
+resources:
+  - name: {{ .Values.namePrefix }}_promotedBuildInfo
+    type: BuildInfo
+    configuration:
+      sourceArtifactory: {{ .Values.artIntegration }}
+
+pipelines:
+  - name: {{ .Values.namePrefix }}_promote_ci
+    configuration:
+      environmentVariables:
+        readOnly:
+          JFROG_CLI_BUILD_NAME: ${pipeline_name}
+          JFROG_CLI_BUILD_NUMBER: ${run_id}
+    steps:
+      - name: promote
+        type: PromoteBuild
+        configuration:
+          inputResources:
+            - name: {{ .Values.inputBuildInfoResourceName }}
+            {{ if .Values.inputBuildInfoResourceBranch }}
+            branch: {{ .Values.inputBuildInfoResourceBranch }}
+            {{ end }}
+          outputResources:
+            - name: {{ .Values.namePrefix }}_promotedBuildInfo
+          targetRepository: {{ .Values.targetRepository }}
+        {{ if .Values.includeDependencies }}
+        includeDependencies: {{ .Values.includeDependencies }}
+        {{ end }}
+        {{ if .Values.status }}
+        status: {{ .Values.status }}
+        {{ end }}
+        {{ if .Values.comment }}
+        comment: {{ .Values.comment }}
+        {{ end }}
+        {{ if .Values.copy }}
+        copy: {{ .Values.copy }}
+        {{ end }}
+        {{ if .Values.failOnValidate }}
+        failOnValidate: {{ .Values.failOnValidate }}
+        {{ end }}

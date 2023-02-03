@@ -1,0 +1,103 @@
+template: true
+valuesFilePath: ./values.yml
+resources:
+  - name: templateRepository
+    type: GitRepo
+    configuration:
+      path: {{ .Values.templateRepository.path }}
+      gitProvider: {{ .Values.templateRepository.gitProvider }}
+      {{ if .Values.templateRepository.branch }}
+      branches:
+        include: {{ .Values.templateRepository.branch}}
+      {{ end }}
+
+  - name: goTemplateBinary
+    type: FileSpec
+    configuration:
+      sourceArtifactory: {{ .Values.publishTemplate.artifactoryIntegration }}
+      pattern: "{{ .jfrog-pipelines.rootBucket }}/tools/pipelines-template"
+      recursive: false
+      flat: true
+
+  - name: templateUploadStatus
+    type: PropertyBag
+    configuration:
+      status: "not-built"
+      templateNamespace: {{ .Values.publishTemplate.namespace }}
+      templateName: {{ .Values.publishTemplate.name }}
+      templateVersion: {{ .Values.publishTemplate.version }}
+
+pipelines:
+  - name: {{ default "PublishTemplate"  .Values.publishTemplate.pipelineName }}
+    configuration:
+      environmentVariables:
+        readOnly:
+          templateFolder:
+            default: {{ .Values.templateRepository.templateFolder }}
+            description: Please mention the exact template folder location, where your templateDefinition.yml file is present in the repository
+          templateNamespace:
+            default: {{ .Values.publishTemplate.namespace }}
+            description: Please mention the namespace where you want your template to be uploaded to artifactory's {{ .jfrog-pipelines.rootBucket }}
+          templateName:
+            default: {{ .Values.publishTemplate.name }}
+            description: Please mention the name of your template
+          version:
+            default: {{ .Values.publishTemplate.version }}
+            description: Please enter semantic version
+    steps:
+      - name: validate_and_publish_template
+        type: Bash
+        configuration:
+          inputResources:
+            - name: goTemplateBinary
+            - name: templateRepository
+              trigger: false
+          outputResources:
+            - name: templateUploadStatus
+        execution:
+          onExecute:
+            - versionRegex='^([0-9]+\.){0,2}(\*|[0-9]+)$'
+            - |
+              if [[ $version =~ $versionRegex ]]; then
+                echo "$version is valid"
+              else
+                echo "Please enter a valid semantic version"
+                exit 1
+              fi
+            - |
+              if [[ $templateNamespace == 'jfrog' ]]; then
+                echo "namespace cannot be jfrog, please choose a different namespace"
+                exit 1
+              fi
+            - pushd $res_templateRepository_resourcePath
+            - pushd $templateFolder
+            - |
+              if [ ! test -f "./templateDefinition.yml" ]; then
+                echo "please provide valid template folder where your templateDefinition.yml is present in the repository"
+              fi
+            - touch values.yml
+            - cp -vr $res_goTemplateBinary_resourcePath/pipelines-template ./pipelines-template
+            - chmod +x ./pipelines-template
+            - ./pipelines-template apply --values-file ./values.yml --template-file ./templateDefinition.yml --output-file output.yml --ignore-special-variables gitBranch
+            - jfrog rt upload ./templateDefinition.yml {{ .jfrog-pipelines.rootBucket }}/templates/$templateNamespace/$templateName/$version/templateDefinition.yml --recursive=true
+            - |
+              if test -f "./values.yml.example"; then
+                jfrog rt upload ./values.yml.example {{ .jfrog-pipelines.rootBucket }}/templates/$templateNamespace/$templateName/$version/values.yml.example --recursive=true
+              fi
+            - |
+              if test -f "./readme.md"; then
+                jfrog rt upload ./readme.md {{ .jfrog-pipelines.rootBucket }}/templates/$templateNamespace/$templateName/$version/readme.md --recursive=true
+              fi
+            - |
+              if test -f "./README.md"; then
+                jfrog rt upload ./README.md {{ .jfrog-pipelines.rootBucket }}/templates/$templateNamespace/$templateName/$version/README.md --recursive=true
+              fi
+            - popd
+          onComplete:
+            - write_output templateUploadStatus "templateNamespace=${templateNamespace}"
+            - write_output templateUploadStatus "templateName=${templateName}"
+            - write_output templateUploadStatus "templateVersion=${version}"
+          onSuccess:
+            - write_output templateUploadStatus "status=success"
+          onFailure:
+            - write_output templateUploadStatus "status=failure"

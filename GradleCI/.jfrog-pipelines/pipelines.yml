@@ -1,0 +1,74 @@
+resources:
+  - name: {{ .Values.namePrefix }}_repo
+    type: GitRepo
+    configuration:
+      path: {{ .Values.repo.path }}
+      gitProvider: {{ .Values.repo.gitIntegration }}
+      branches:
+        include: {{ .Values.repo.branchPattern | default "main" }}
+
+{{ if .Values.publishBuild }}
+  - name: {{ .Values.namePrefix }}_info
+    type: BuildInfo
+    configuration:
+      sourceArtifactory: {{ .Values.artIntegration }}
+
+  - name: {{ .Values.namePrefix }}_spec
+    type: FileSpec
+    configuration:
+      sourceArtifactory: {{ .Values.artIntegration }}
+      pattern: '{{ .Values.buildSpecPattern | default "*" }}'
+      buildName: ${JFROG_CLI_BUILD_NAME}
+      buildNumber: ${JFROG_CLI_BUILD_NUMBER}
+{{ end }}
+
+
+pipelines:
+  - name: {{ .Values.namePrefix }}_gradle_ci
+{{ if .Values.publishBuild }}
+    configuration:
+      environmentVariables:
+        readOnly:
+          JFROG_CLI_BUILD_NAME: ${pipeline_name}
+          JFROG_CLI_BUILD_NUMBER: ${run_id}
+{{ end }}
+    steps:
+      - name: build
+        type: GradleBuild
+        configuration:
+          integrations:
+            - name: {{ .Values.artIntegration }}
+          inputResources:
+            - name: {{ .Values.namePrefix }}_repo
+        {{ if .Values.publishBuild }}
+          outputResources:
+            - name: {{ .Values.namePrefix }}_info
+            - name: {{ .Values.namePrefix }}_spec
+        {{ end }}
+        {{ if .Values.publishBuild }}
+          autoPublishBuildInfo: true
+        {{ end }}
+        {{ if and .Values.scanBuild .Values.publishBuild }}
+          forceXrayScan: true
+        {{ end }}
+        {{ if .Values.gradleConfig.command }}
+          gradleCommand: {{ .Values.gradleConfig.command }}
+        {{ end }}
+        {{ if .Values.gradleConfig.sourceLocation }}
+          sourceLocation: {{ .Values.gradleConfig.sourceLocation }}
+        {{ end }}
+        {{ if .Values.useWrapper }}
+          useWrapper: true
+        {{ end }}
+        {{ if .Values.gradleConfig.resolverRepo }}
+          resolverRepo: {{ .Values.gradleConfig.resolverRepo }}
+        {{ end }}
+        {{ if .Values.gradleConfig.deployerRepo }}
+          deployerRepo: {{ .Values.gradleConfig.deployerRepo }}
+        {{ end }}
+      {{ if .Values.publishBuild }}
+        execution:
+          onSuccess:
+            - write_output {{ .Values.namePrefix }}_spec buildName="${JFROG_CLI_BUILD_NAME}"
+            - write_output {{ .Values.namePrefix }}_spec buildNumber="${JFROG_CLI_BUILD_NUMBER}"
+      {{ end }}

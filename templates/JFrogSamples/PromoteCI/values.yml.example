@@ -1,0 +1,26 @@
+## This string will prefix the resources and pipeline, allowing you to add
+## the pipeline source multiple times with unique names.
+namePrefix: sample
+
+## The name of your Artifactory integration
+artIntegration: myArtIntegrationName
+
+## The name of the BuildInfo resource referencing the build to be promoted
+inputBuildInfoResourceName: myBuildInfo
+## If your input BuildInfo resource is from a multi-branch pipeline source and
+## you wish to use the resource from another branch, specify that branch name.
+#inputBuildInfoResourceBranch: myBranchToUseAsInput
+
+##### Promotion Info
+## the repository to which to promote the build
+targetRepository: myPromotionRepo
+## set this to `true` to include dependencies in the promotion
+#includeDependencies: true
+## set this to `true` to copy and not move the promoted files
+#copy: true
+## set this to `true` to validate the input BuildInfo through Signed Pipelines
+#failOnValidate: true
+## the promotion status for the build
+#status: TEST
+## the promotion comment for the build
+#comment: "Promoted by run number ${run_number}."

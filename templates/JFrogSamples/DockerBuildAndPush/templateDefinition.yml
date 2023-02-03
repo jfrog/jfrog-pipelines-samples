@@ -1,0 +1,67 @@
+resources:
+  - name: {{ .Values.GitRepo.name | default "GitRepoRes" }}
+    type: GitRepo
+    configuration:
+      gitProvider: {{ .Values.GitRepo.gitProvider }}
+      path: {{ .Values.GitRepo.path }}
+      {{- if or (.Values.GitRepo.branches.include) (.Values.GitRepo.branches.exclude) }}
+      branches:
+        {{- if .Values.GitRepo.branches.include }}
+          include: {{ .Values.GitRepo.branches.include }}
+        {{- end }}
+        {{- if .Values.GitRepo.branches.exclude }}
+          exclude: {{ .Values.GitRepo.branches.exclude }}
+        {{- end }}
+      {{- end }}
+
+  - name: {{ .Values.Image.name | default "ImageRes" }}
+    type: Image
+    configuration:
+      registry: {{ .Values.artifactoryIntegration }}
+      imageName: {{ .Values.DockerBuild.dockerImageName }}
+      imageTag: {{ .Values.DockerBuild.dockerImageTag | default "latest" }}
+      autoPull: {{ .Values.Image.autopull | default true }}
+
+  {{- if .Values.BuildInfo }}
+  - name: {{ .Values.BuildInfo.name | default "BuildInfo" }}
+    type: BuildInfo
+    configuration:
+      sourceArtifactory: {{ .Values.artifactoryIntegration }}
+      buildName: {{ .Values.DockerPush.name | default "DockerPush" }}
+      buildNumber: {{ .Values.BuildInfo.buildNumber | default 1 }}
+  {{- end }}
+
+pipelines:
+  - name: {{ .Values.Pipeline.name | default "Pipeline" }}
+    configuration:
+      jfrogCliVersion: 2
+    steps:
+      - name: {{ .Values.DockerBuild.name | default "DockerBuild" }}
+        type: DockerBuild
+        configuration:
+          affinityGroup: DockerBuildAndPush
+          dockerFileLocation: {{ .Values.DockerBuild.dockerFileLocation | default "." | quote }}
+          dockerFileName: {{ .Values.DockerBuild.dockerFileName | default "Dockerfile" }}
+          dockerImageName: {{ .Values.DockerBuild.dockerImageName }}
+          dockerImageTag: {{ .Values.DockerBuild.dockerImageTag }}
+          inputResources:
+            - name: {{ .Values.GitRepo.name | default "GitRepoRes" }}
+          integrations:
+            - name: {{ .Values.artifactoryIntegration }}
+
+      - name: {{ .Values.DockerPush.name | default "DockerPush" }}
+        type: DockerPush
+        configuration:
+          {{- if .Values.BuildInfo }}
+          autoPublishBuildInfo: {{ .Values.BuildInfo.autoPublishBuildInfo | default true }}
+          {{- end }}
+          affinityGroup: DockerBuildAndPush
+          integrations:
+            - name: {{ .Values.artifactoryIntegration }}
+          inputSteps:
+            - name: {{ .Values.DockerBuild.name | default "DockerBuild" }}
+          outputResources:
+            - name: {{ .Values.Image.name | default "ImageRes" }}
+            {{- if .Values.BuildInfo }}
+            - name: {{ .Values.BuildInfo.name | default "BuildInfo" }}
+            {{- end }}

@@ -1,0 +1,35 @@
+## This string will prefix the resources and pipeline, allowing you to add
+## the pipeline source multiple times with unique names.
+namePrefix: sample
+
+## The name of your Artifactory integration
+artIntegration: myArtIntegrationName
+
+##### Artifactory Build Info
+## set this to `true` to publish a build
+#publishBuild: true
+## set this to `true` to scan the published build
+#scanBuild: true
+## When publishBuild is enabled, a FileSpec resource will be created
+## that points to the published build. Here you can specify a pattern
+## to further narrow down the Artifacts that are referenced by the spec.
+#buildSpecPattern: "*"
+
+##### Repository Details
+repo:
+  path: org/repo
+  gitIntegration: myGitIntegration
+  branchPattern: "^main$"
+
+npmConfig:
+  ## Here you specify any additional arguments to the command to execute
+  ## it is executed as `npm install {{ npmArgs }}`
+  npmArgs: "--no-install"
+  sourceLocation: "."
+  ## These repositories must first be created in Artifactory.
+  ## The resolver is used to resolve dependencies. It is recommended to
+  ## use a remote repository so that any external dependencies will be cached
+  ## in your local Artifactory instance. Deployer is where your Artifacts
+  ## will be uploaded.
+  resolverRepo: npm-remote
+  deployerRepo: npm-local
