@@ -1,5 +1,5 @@
 Pipeline:
-  name: foo
+  name: docker_template
 
 GitRepo:
   name: sampleRepo
@@ -17,9 +17,9 @@ Image:
 
 DockerBuild:
   name: sampleBuild
-  dockerImageName: jfrog/testimage
+  dockerImageName: pipelines.jfrog.io/templates-docker-local/dbp
   dockerFileName: Dockerfile
-  dockerFileLocation: '.'
+  dockerFileLocation: './.jfrog-pipelines/DockerBuildAndPush'
   dockerImageTag: ${run_number}
 
 DockerPush:
