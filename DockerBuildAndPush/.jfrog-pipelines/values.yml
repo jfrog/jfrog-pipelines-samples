@@ -19,7 +19,7 @@ DockerBuild:
   name: sampleBuild
   dockerImageName: pipelines.jfrog.io/templates-docker-local/dbp
   dockerFileName: Dockerfile
-  dockerFileLocation: './.jfrog-pipelines/DockerBuildAndPush'
+  dockerFileLocation: '.'
   dockerImageTag: ${run_number}
 
 DockerPush:
