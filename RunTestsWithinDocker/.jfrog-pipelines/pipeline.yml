@@ -3,12 +3,12 @@ resources:
     type: GitRepo
     configuration:
       gitProvider: Github
-      path: harshkumar1/test_repo
+      path: harshkumar1/jfrog-pipelines-samples
 
 pipelines:
   - name: run_tests_within_docker
     steps:
-      - name: docker_build_bash
+      - name: test_within_docker
         type: Bash
         configuration:
           inputResources:
