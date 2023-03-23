@@ -1,0 +1,25 @@
+resources:
+  - name: repo_res
+    type: GitRepo
+    configuration:
+      gitProvider: Github
+      path: harshkumar1/test_repo
+
+pipelines:
+  - name: test_repo
+    steps:
+      - name: docker_build_bash
+        type: Bash
+        configuration:
+          inputResources:
+            - name: repo_res
+        execution:
+          onExecute:
+            - cd $res_repo_res_resourcePath
+            - docker build .
+            - id=$(docker images --filter "label=testDocker" -q)
+            - docker create --name testcontainer $id
+            - docker cp testcontainer:/tmp/surefire-reports ./testresults
+            - save_tests ./testresults
+            - docker rm testcontainer
+            - docker rmi $id
