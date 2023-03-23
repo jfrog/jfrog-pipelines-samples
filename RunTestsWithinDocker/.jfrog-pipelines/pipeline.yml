@@ -1,0 +1,27 @@
+resources:
+  - name: run_tests_within_docker_repo
+    type: GitRepo
+    configuration:
+      gitProvider: Github
+      path: harshkumar1/jfrog-pipelines-samples
+
+pipelines:
+  - name: run_tests_within_docker
+    steps:
+      - name: test_within_docker
+        type: Bash
+        configuration:
+          inputResources:
+            - name: run_tests_within_docker_repo
+        execution:
+          onExecute:
+            - cd $res_run_tests_within_docker_repo_resourcePath
+            - pwd
+            - ls
+            - docker build -f ./RunTestsWithinDocker/Dockerfile .
+            - id=$(docker images --filter "label=testDocker" -q)
+            - docker create --name testcontainer $id
+            - docker cp testcontainer:/tmp/surefire-reports ./testresults
+            - save_tests ./testresults
+            - docker rm testcontainer
+            - docker rmi $id
