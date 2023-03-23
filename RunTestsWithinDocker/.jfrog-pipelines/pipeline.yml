@@ -2,8 +2,8 @@ resources:
   - name: run_tests_within_docker_repo
     type: GitRepo
     configuration:
-      gitProvider: Github
-      path: harshkumar1/jfrog-pipelines-samples
+      gitProvider: myGithub
+      path: jfrog/jfrog-pipelines-samples
 
 pipelines:
   - name: run_tests_within_docker
