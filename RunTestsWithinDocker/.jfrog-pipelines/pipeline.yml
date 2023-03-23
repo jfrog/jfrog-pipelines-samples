@@ -1,5 +1,5 @@
 resources:
-  - name: repo_res
+  - name: run_tests_within_docker_repo
     type: GitRepo
     configuration:
       gitProvider: Github
@@ -12,7 +12,7 @@ pipelines:
         type: Bash
         configuration:
           inputResources:
-            - name: repo_res
+            - name: run_tests_within_docker_repo
         execution:
           onExecute:
             - cd $res_repo_res_resourcePath
