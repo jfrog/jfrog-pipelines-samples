@@ -16,7 +16,7 @@ pipelines:
         execution:
           onExecute:
             - cd $res_repo_res_resourcePath
-            - docker build .
+            - docker build -f ./RunTestsWithinDocker/Dockerfile .
             - id=$(docker images --filter "label=testDocker" -q)
             - docker create --name testcontainer $id
             - docker cp testcontainer:/tmp/surefire-reports ./testresults
