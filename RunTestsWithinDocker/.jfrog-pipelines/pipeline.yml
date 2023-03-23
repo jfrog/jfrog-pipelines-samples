@@ -15,7 +15,7 @@ pipelines:
             - name: run_tests_within_docker_repo
         execution:
           onExecute:
-            - cd $res_repo_res_resourcePath
+            - cd $res_run_tests_within_docker_repo_resourcePath
             - docker build -f ./RunTestsWithinDocker/Dockerfile .
             - id=$(docker images --filter "label=testDocker" -q)
             - docker create --name testcontainer $id
