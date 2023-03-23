@@ -6,7 +6,7 @@ resources:
       path: harshkumar1/test_repo
 
 pipelines:
-  - name: test_repo
+  - name: run_tests_within_docker
     steps:
       - name: docker_build_bash
         type: Bash
