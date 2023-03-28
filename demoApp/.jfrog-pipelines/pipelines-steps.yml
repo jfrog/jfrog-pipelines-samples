@@ -51,7 +51,7 @@ pipelines:
                   - "14"
           affinityGroup: frontend
           npmArgs: --no-progress --no-audit
-          sourceLocation: ./frontend
+          sourceLocation: ./demoApp/frontend
           repositoryName: test-npm-virtual
           inputSteps:
             - name: trigger_all
