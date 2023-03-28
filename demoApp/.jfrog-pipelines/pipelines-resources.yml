@@ -2,7 +2,7 @@ resources:
   - name: backend_gitRepo
     type: GitRepo
     configuration:
-      path: jfrog/jfrog-pipelines-samples
+      path: jfrog/jfrog-pipelines-samples/demoApp
       gitProvider: myGithub
       files:
         include: \bbackend\/.+\b
@@ -12,7 +12,7 @@ resources:
   - name: frontend_gitRepo
     type: GitRepo
     configuration:
-      path: jfrog/jfrog-pipelines-samples
+      path: jfrog/jfrog-pipelines-samples/demoApp
       gitProvider: myGithub
       files:
         include: \bfrontend\/.+\b
