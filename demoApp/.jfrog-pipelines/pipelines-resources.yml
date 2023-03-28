@@ -22,7 +22,7 @@ resources:
   - name: frontend_gitRepo_1
     type: GitRepo
     configuration:
-      path: jfrog/jfrog-pipelines-samples/demoApp
+      path: jfrog/jfrog-pipelines-samples
       gitProvider: myGithub
       files:
         include: \bvue-frontend-master\/.+\b      
