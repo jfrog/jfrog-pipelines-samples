@@ -2,7 +2,7 @@ resources:
   - name: backend_gitRepo
     type: GitRepo
     configuration:
-      path: RjSH1/demoApp
+      path: jfrog/demoApp
       gitProvider: myGithub
       files:
         include: \bbackend\/.+\b
@@ -12,7 +12,7 @@ resources:
   - name: frontend_gitRepo
     type: GitRepo
     configuration:
-      path: RjSH1/demoApp
+      path: jfrog/demoApp
       gitProvider: myGithub
       files:
         include: \bfrontend\/.+\b
@@ -22,7 +22,7 @@ resources:
   - name: frontend_gitRepo_1
     type: GitRepo
     configuration:
-      path: RjSH1/vue-frontend
+      path: jfrog/vue-frontend
       gitProvider: myGithub
       branches:
         include: ^master$
