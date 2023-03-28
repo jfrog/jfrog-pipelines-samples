@@ -52,7 +52,7 @@ pipelines:
           affinityGroup: frontend
           npmArgs: --no-progress --no-audit
           sourceLocation: ./demoApp/frontend
-          repositoryName: test-npm-virtual
+          repositoryName: quickstarts-npm-virtual
           inputSteps:
             - name: trigger_all
           inputResources:
