@@ -1,0 +1,21 @@
+pipelines:
+  - name: cache_test_build
+    steps:
+      - name: frontend_build
+        type: Bash
+        configuration:
+          inputResources:
+            - name: frontend_gitRepo
+          integrations:
+            - name: myArtifactory
+        execution:
+          onStart:
+            - pushd $res_frontend_gitRepo_resourcePath
+            - pushd frontend
+            - use_jfrog_cli myArtifactory
+            - mkdir -p /tmp/npm_cache
+            - restore_pipeline_files npm_cache /tmp/npm_cache/
+            - jfrog rt npm-config --repo-resolve 'test-npm-virtual' --server-id-resolve myArtifactory
+            - jfrog rt npmci --cache /tmp/npm_cache --prefer-offline --only=production
+            - add_pipeline_files /tmp/npm_cache npm_cache
+            - echo "completed"
