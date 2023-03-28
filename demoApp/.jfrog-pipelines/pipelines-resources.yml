@@ -27,7 +27,7 @@ resources:
       files:
         include: \bvue-frontend-master\/.+\b      
       branches:
-        include: ^master$
+        include: ^{{gitBranch}}$
   
   - name: backend_package
     type: FileSpec
