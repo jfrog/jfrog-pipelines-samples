@@ -1,0 +1,59 @@
+resources:
+  - name: backend_gitRepo
+    type: GitRepo
+    configuration:
+      path: RjSH1/demoApp
+      gitProvider: myGithub
+      files:
+        include: \bbackend\/.+\b
+      branches:
+        include: ^{{gitBranch}}$
+
+  - name: frontend_gitRepo
+    type: GitRepo
+    configuration:
+      path: RjSH1/demoApp
+      gitProvider: myGithub
+      files:
+        include: \bfrontend\/.+\b
+      branches:
+        include: ^{{gitBranch}}$
+  
+  - name: frontend_gitRepo_1
+    type: GitRepo
+    configuration:
+      path: RjSH1/vue-frontend
+      gitProvider: myGithub
+      branches:
+        include: ^master$
+  
+  - name: backend_package
+    type: FileSpec
+    configuration:
+      sourceArtifactory: myArtifactory
+      pattern: "test-libs-release-local/com/jfrog/backend/1.0.0/backend-1.0.0.jar"
+      recursive: false
+      flat: true
+
+  - name: frontend_package
+    type: FileSpec
+    configuration:
+      sourceArtifactory: myArtifactory
+      pattern: "test-npm-dev-local/frontend/-/frontend-3.0.0.tgz"
+      recursive: false
+      flat: true
+
+  - name: app_build
+    type: BuildInfo
+    configuration:
+      sourceArtifactory: myArtifactory
+
+  - name: app_tested_build
+    type: BuildInfo
+    configuration:
+      sourceArtifactory: myArtifactory
+
+  - name: app_promoted_build
+    type: BuildInfo
+    configuration:
+      sourceArtifactory: myArtifactory
