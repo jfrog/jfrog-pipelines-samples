@@ -1,0 +1,8 @@
+pipelines:
+  - name: hello_world
+    steps:
+      - name: demo_step
+        type: Bash
+        execution:
+          onExecute:
+            - echo "Hello World"
